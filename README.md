@@ -1,7 +1,9 @@
 # AI FinalProject
-## CSCI 315 FinalProject
+## Solving sudoku puzzles using a CNN (Convolutional Neural Network)
 
-## Authors: Laurie Jones, Jacob Flood, Will Medick, James Lawson, and Evan Phaup
+### CSCI 315 FinalProject
+
+### Authors: Laurie Jones, Jacob Flood, Will Medick, James Lawson, and Evan Phaup
 
 Orginial project that we based our project off of: https://github.com/shivaverma/Sudoku-Solver
 
