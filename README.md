@@ -1,7 +1,5 @@
-# AI FinalProject
+# CSCI 315: Artificial Intelligence - Final Project
 ## Solving sudoku puzzles using a CNN (Convolutional Neural Network)
-
-### CSCI 315 FinalProject
 
 ### Authors: Laurie Jones, Jacob Flood, Will Medick, James Lawson, and Evan Phaup
 
