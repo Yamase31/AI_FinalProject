@@ -61,12 +61,6 @@ model.add(Dense(81 * 9))
 model.add(Reshape((-1, 9)))
 model.add(Activation('softmax'))
 
-#early stop training with a patience of 3
-early_stop = tf.keras.callbacks.EarlyStopping(
-    monitor = "loss",
-    min_delta = 0.0001,
-    patience = 3)
-
 #compile the model with adam optimizer, sparse categorical crossentropy and accuracy metrics
 adam = keras.optimizers.Adam(lr = .001)
 model.compile(loss = 'sparse_categorical_crossentropy',
@@ -76,10 +70,17 @@ model.compile(loss = 'sparse_categorical_crossentropy',
 #visual of the model
 model.summary()
 
+#early stop training with a patience of 3
+early_stop = tf.keras.callbacks.EarlyStopping(
+    monitor = "loss",
+    min_delta = 0.001,
+    patience = 3)
+
 #fit the model with the data, batch size of 32, and _ epochs 
 model.fit(x_train, y_train,
           batch_size = 32,
-          epochs = 1000)
+          epochs = 1000,
+          callbacks = [early_stop])
 
 #accuracy is calculated and printed
 test_results = model.evaluate(x_test, y_test)
@@ -100,16 +101,3 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['training data'], loc = 'upper left')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
