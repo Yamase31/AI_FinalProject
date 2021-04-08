@@ -10,6 +10,31 @@ from keras.layers import Conv2D, BatchNormalization, Dense, Flatten, Reshape
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+
+#### Need to implement the GAN here ------------------- \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #data preprocessing
 def get_data(file): 
 
