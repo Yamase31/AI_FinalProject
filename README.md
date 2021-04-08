@@ -9,6 +9,10 @@ Article that pairs with the original project: https://towardsdatascience.com/sol
 
 Since our data is larger than 25MB, we have attached it here: https://drive.google.com/file/d/1nFx33BdZe8ydhUFNrsaMeqFU2uDdO28f/view?usp=sharing - original source of out data: https://www.kaggle.com/bryanpark/sudoku?select=sudoku.csv
 
+GAN Link: https://www.tensorflow.org/tutorials/generative/dcgan
+
+CNN Model:
+
 Epoch 1/1000 25000/25000 [==============================] - 1887s 75ms/step - loss: 0.6441 - accuracy: 0.7298
 
 Epoch 2/1000 25000/25000 [==============================] - 1887s 75ms/step - loss: 0.3606 - accuracy: 0.8268
