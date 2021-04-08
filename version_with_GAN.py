@@ -5,35 +5,14 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from keras.layers import Activation
-from keras.layers import Conv2D, BatchNormalization, Dense, Flatten, Reshape
+from keras.layers import Conv2D, BatchNormalization, Dense, Flatten, Reshape, LeakyReLU, Dropout
 #added
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
 
-#### Need to implement the GAN here ------------------- \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/ \/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#probably going to need new imports
+#some of the imports might be off in the way that they are called
 
 #data preprocessing
 def get_data(file): 
@@ -72,28 +51,107 @@ def get_data(file):
 #load the data
 x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 
-#create the model
-model = keras.models.Sequential()
 
-model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same', input_shape = (9,9,1)))
-model.add(BatchNormalization())
-model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
-model.add(BatchNormalization())
-model.add(Conv2D(128, kernel_size = (1,1), activation = 'relu', padding = 'same'))
 
-model.add(Flatten())
-model.add(Dense(81 * 9))
-model.add(Reshape((-1, 9)))
-model.add(Activation('softmax'))
+
+
+#the generator
+Generator_model = keras.models.Sequential()
+Generator_model.add(layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (100,)))
+Generator_model.add(layers.BatchNormalization())
+Generator_model.add(layers.LeakyReLU())
+
+Generator_model.add(layers.Reshape((7, 7, 256)))
+assert Generator_model.output_shape == (None, 7, 7, 256)  # Note: None is the batch size
+
+Generator_model.add(layers.Conv2DTranspose(128, (5, 5), strides = (1, 1), padding = 'same', use_bias = False))
+assert Generator_model.output_shape == (None, 7, 7, 128)
+Generator_model.add(layers.BatchNormalization())
+Generator_model.add(layers.LeakyReLU())
+
+Generator_model.add(layers.Conv2DTranspose(64, (5, 5), strides = (2, 2), padding = 'same', use_bias = False))
+assert Generator_model.output_shape == (None, 14, 14, 64)
+Generator_model.add(layers.BatchNormalization())
+Generator_model.add(layers.LeakyReLU())
+
+Generator_model.add(layers.Conv2DTranspose(1, (5, 5), strides = (2, 2), padding = 'same', use_bias = False, activation = 'tanh'))
+
+#output should be 81 x 9
+assert Generator_model.output_shape == (None, 81, 9, 1)
+
+noise = tf.random.normal([1, 100])
+generated_image = Generator_model(noise, training=False)
+
+
+
+
+
+
+#the discriminator
+Discriminator_model = keras.models.Sequential()
+Discriminator_model.add(Conv2D(64, kernel_size = (3,3), padding = 'same', input_shape = (9,9,1)))
+
+Discriminator_model.add(LeakyReLU())
+Discriminator_model.add(Dropout(0.3))
+
+Discriminator_model.add(Conv2D(128, kernel_size = (1,1), padding = 'same'))
+Discriminator_model.add(LeakyReLU())
+Discriminator_model.add(Dropout(0.3))
+
+Discriminator_model.add(Flatten())
+Discriminator_model.add(Dense(81 * 9))
+
+
+
+#define loss 
+cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+
+
+
+def discriminator_loss(real_output, fake_output):
+    real_loss = cross_entropy(tf.ones_like(real_output), real_output)
+    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
+    total_loss = real_loss + fake_loss
+    return total_loss
+
+
+def generator_loss(fake_output):
+    return cross_entropy(tf.ones_like(fake_output), fake_output)
+
+generator_optimizer = tf.keras.optimizers.Adam(1e-4)
+discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
+
+
+EPOCHS = 50
+noise_dim = 100
+num_examples_to_generate = 16
+
+# You will reuse this seed overtime (so it's easier)
+# to visualize progress in the animated GIF)
+seed = tf.random.normal([num_examples_to_generate, noise_dim])
+
+
+
+
+
+
+
+#\/\/\/\/\/\/\/\/\/\/ This is all from the old CNN
+
+
+
+
+
+
 
 #compile the model with adam optimizer, sparse categorical crossentropy and accuracy metrics
 adam = keras.optimizers.Adam(lr = .001)
-model.compile(loss = 'sparse_categorical_crossentropy',
+CNN_model.compile(loss = 'sparse_categorical_crossentropy',
               optimizer = adam,
               metrics = ['accuracy'])
 
 #visual of the model
-model.summary()
+CNN_model.summary()
 
 #early stop training with a patience of 3
 early_stop = tf.keras.callbacks.EarlyStopping(
@@ -102,13 +160,13 @@ early_stop = tf.keras.callbacks.EarlyStopping(
     patience = 3)
 
 #fit the model with the data, batch size of 32, and _ epochs 
-model.fit(x_train, y_train,
-          batch_size = 32,
-          epochs = 1000,
-          callbacks = [early_stop])
+final_model = CNN_model.fit(x_train, y_train,
+                            batch_size = 32,
+                            epochs = 1000,
+                            callbacks = [early_stop])
 
 #accuracy is calculated and printed
-test_results = model.evaluate(x_test, y_test)
+test_results = CNN_model.evaluate(x_test, y_test)
 print("Accuracy: ", test_results[1])
 
 #Show graph of loss over time for training data
@@ -126,6 +184,15 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['training data'], loc = 'upper left')
 plt.show()
+
+
+
+
+
+
+
+
+
 
 
 
