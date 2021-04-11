@@ -5,12 +5,12 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers
-from keras.layers import Activation
-from keras.layers import Conv2D, BatchNormalization, Dense, Flatten, Reshape, LeakyReLU, Dropout
 #added
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import csv
+#import os
+#import struct
 
 #probably going to need new imports
 #some of the imports might be off in the way that they are called
@@ -23,7 +23,7 @@ def get_data(file):
     
     # Change directory to where YOUR saved CSV is
     
-    with open(r'C:\Users\Will Medick\git\AI_FinalProject\sudoku.csv') as csvfile:
+    with open('sudoku.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
         next(reader)
         for row in reader:
@@ -64,7 +64,7 @@ x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 #the generator
 
 Generator_model = keras.models.Sequential()
-Generator_model.add(tf.layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (100,)))
+Generator_model.add(layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (100,)))
 Generator_model.add(layers.BatchNormalization())
 Generator_model.add(layers.LeakyReLU())
 
@@ -84,6 +84,7 @@ Generator_model.add(layers.LeakyReLU())
 Generator_model.add(layers.Conv2DTranspose(1, (5, 5), strides = (2, 2), padding = 'same', use_bias = False, activation = 'tanh'))
 
 #output should be 81 x 9
+print(Generator_model.output_shape)
 assert Generator_model.output_shape == (None, 81, 9, 1)
 
 noise = tf.random.normal([1, 100])
@@ -96,17 +97,17 @@ generated_image = Generator_model(noise, training=False)
 
 #the discriminator
 Discriminator_model = keras.models.Sequential()
-Discriminator_model.add(Conv2D(64, kernel_size = (3,3), padding = 'same', input_shape = (9,9,1)))
+Discriminator_model.add(layers.Conv2D(64, kernel_size = (3,3), padding = 'same', input_shape = (9,9,1)))
 
-Discriminator_model.add(LeakyReLU())
-Discriminator_model.add(Dropout(0.3))
+Discriminator_model.add(layers.LeakyReLU())
+Discriminator_model.add(layers.Dropout(0.3))
 
-Discriminator_model.add(Conv2D(128, kernel_size = (1,1), padding = 'same'))
-Discriminator_model.add(LeakyReLU())
-Discriminator_model.add(Dropout(0.3))
+Discriminator_model.add(layers.Conv2D(128, kernel_size = (1,1), padding = 'same'))
+Discriminator_model.add(layers.LeakyReLU())
+Discriminator_model.add(layers.Dropout(0.3))
 
-Discriminator_model.add(Flatten())
-Discriminator_model.add(Dense(81 * 9))
+Discriminator_model.add(layers.Flatten())
+Discriminator_model.add(layers.Dense(81 * 9))
 
 
 
@@ -152,7 +153,7 @@ seed = tf.random.normal([num_examples_to_generate, noise_dim])
 
 
 #compile the model with adam optimizer, sparse categorical crossentropy and accuracy metrics
-adam = keras.optimizers.Adam(lr = .001)
+adam = keras.optimizers.Adam(learning_rate=.001)
 CNN_model.compile(loss = 'sparse_categorical_crossentropy',
               optimizer = adam,
               metrics = ['accuracy'])
@@ -191,25 +192,3 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['training data'], loc = 'upper left')
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
