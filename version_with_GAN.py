@@ -4,39 +4,47 @@ import keras
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from tensorflow.keras import layers
 from keras.layers import Activation
 from keras.layers import Conv2D, BatchNormalization, Dense, Flatten, Reshape, LeakyReLU, Dropout
 #added
 import tensorflow as tf
 import matplotlib.pyplot as plt
-
+import csv
 
 #probably going to need new imports
 #some of the imports might be off in the way that they are called
 
-#data preprocessing
+#data pre-processing
 def get_data(file): 
-
-    data = pd.read_csv(file)
-
-    feat_raw = data['quizzes']
-    label_raw = data['solutions']
+    
+    feat_raw = []
+    label_raw = []
+    
+    # Change directory to where YOUR saved CSV is
+    
+    with open(r'C:\Users\Will Medick\git\AI_FinalProject\sudoku.csv') as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        next(reader)
+        for row in reader:
+            feat_raw.append(row[0])
+            label_raw.append(row[1])
 
     feat = []
     label = []
 
     for i in feat_raw:
-    
         x = np.array([int(j) for j in i]).reshape((9,9,1))
         feat.append(x)
     
+    # Normalize the puzzles between -1 and 1
     feat = np.array(feat)    
     feat = feat/9
     feat -= .5    
     
     for i in label_raw:
-    
         x = np.array([int(j) for j in i]).reshape((81,1)) - 1
+        
         label.append(x)   
     
     label = np.array(label)
@@ -51,13 +59,12 @@ def get_data(file):
 #load the data
 x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 
-
-
-
+#normalize data
 
 #the generator
+
 Generator_model = keras.models.Sequential()
-Generator_model.add(layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (100,)))
+Generator_model.add(tf.layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (100,)))
 Generator_model.add(layers.BatchNormalization())
 Generator_model.add(layers.LeakyReLU())
 
@@ -184,6 +191,7 @@ plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['training data'], loc = 'upper left')
 plt.show()
+
 
 
 
