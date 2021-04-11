@@ -59,12 +59,10 @@ def get_data(file):
 #load the data
 x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 
-#normalize data
-
 #the generator
 
 Generator_model = keras.models.Sequential()
-Generator_model.add(layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (100,)))
+Generator_model.add(layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (9,9, 1)))
 Generator_model.add(layers.BatchNormalization())
 Generator_model.add(layers.LeakyReLU())
 
@@ -90,11 +88,6 @@ assert Generator_model.output_shape == (None, 81, 9, 1)
 noise = tf.random.normal([1, 100])
 generated_image = Generator_model(noise, training=False)
 
-
-
-
-
-
 #the discriminator
 Discriminator_model = keras.models.Sequential()
 Discriminator_model.add(layers.Conv2D(64, kernel_size = (3,3), padding = 'same', input_shape = (9,9,1)))
@@ -109,12 +102,8 @@ Discriminator_model.add(layers.Dropout(0.3))
 Discriminator_model.add(layers.Flatten())
 Discriminator_model.add(layers.Dense(81 * 9))
 
-
-
 #define loss 
 cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
-
-
 
 def discriminator_loss(real_output, fake_output):
     real_loss = cross_entropy(tf.ones_like(real_output), real_output)
@@ -129,7 +118,6 @@ def generator_loss(fake_output):
 generator_optimizer = tf.keras.optimizers.Adam(1e-4)
 discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
 
-
 EPOCHS = 50
 noise_dim = 100
 num_examples_to_generate = 16
@@ -138,19 +126,7 @@ num_examples_to_generate = 16
 # to visualize progress in the animated GIF)
 seed = tf.random.normal([num_examples_to_generate, noise_dim])
 
-
-
-
-
-
-
 #\/\/\/\/\/\/\/\/\/\/ This is all from the old CNN
-
-
-
-
-
-
 
 #compile the model with adam optimizer, sparse categorical crossentropy and accuracy metrics
 adam = keras.optimizers.Adam(learning_rate=.001)
