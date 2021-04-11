@@ -62,31 +62,32 @@ x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 #the generator
 
 Generator_model = keras.models.Sequential()
-Generator_model.add(layers.Dense(7 * 7 * 256, use_bias = False, input_shape = (9,9, 1)))
+Generator_model.add(layers.Dense(1 * 1 * 256, use_bias = False, input_shape = (9, 9, 1)))
 Generator_model.add(layers.BatchNormalization())
 Generator_model.add(layers.LeakyReLU())
 
-Generator_model.add(layers.Reshape((7, 7, 256)))
-assert Generator_model.output_shape == (None, 7, 7, 256)  # Note: None is the batch size
+Generator_model.add(layers.Reshape((1, 1, 256)))
+assert Generator_model.output_shape == (None, 1, 1, 256)  # Note: None is the batch size
 
 Generator_model.add(layers.Conv2DTranspose(128, (5, 5), strides = (1, 1), padding = 'same', use_bias = False))
-assert Generator_model.output_shape == (None, 7, 7, 128)
+assert Generator_model.output_shape == (None, 1, 1, 128)
 Generator_model.add(layers.BatchNormalization())
 Generator_model.add(layers.LeakyReLU())
 
-Generator_model.add(layers.Conv2DTranspose(64, (5, 5), strides = (2, 2), padding = 'same', use_bias = False))
-assert Generator_model.output_shape == (None, 14, 14, 64)
+Generator_model.add(layers.Conv2DTranspose(64, (5, 5), strides = (3, 3), padding = 'same', use_bias = False))
+assert Generator_model.output_shape == (None, 3, 3, 64)
 Generator_model.add(layers.BatchNormalization())
 Generator_model.add(layers.LeakyReLU())
 
-Generator_model.add(layers.Conv2DTranspose(1, (5, 5), strides = (2, 2), padding = 'same', use_bias = False, activation = 'tanh'))
+Generator_model.add(layers.Conv2DTranspose(1, (5, 5), strides = (3, 3), padding = 'same', use_bias = False, activation = 'tanh'))
+print(Generator_model.output_shape)
 
 #output should be 81 x 9
-print(Generator_model.output_shape)
-assert Generator_model.output_shape == (None, 81, 9, 1)
 
-noise = tf.random.normal([1, 100])
-generated_image = Generator_model(noise, training=False)
+assert Generator_model.output_shape == (None, 9, 9, 1)
+
+##noise = tf.random.normal([1, 100])
+##generated_image = Generator_model(noise, training=False)
 
 #the discriminator
 Discriminator_model = keras.models.Sequential()
@@ -125,8 +126,6 @@ num_examples_to_generate = 16
 # You will reuse this seed overtime (so it's easier)
 # to visualize progress in the animated GIF)
 seed = tf.random.normal([num_examples_to_generate, noise_dim])
-
-#\/\/\/\/\/\/\/\/\/\/ This is all from the old CNN
 
 #compile the model with adam optimizer, sparse categorical crossentropy and accuracy metrics
 adam = keras.optimizers.Adam(learning_rate=.001)
