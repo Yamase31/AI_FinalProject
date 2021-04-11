@@ -62,7 +62,7 @@ model.add(Reshape((-1, 9)))
 model.add(Activation('softmax'))
 
 #compile the model with adam optimizer, sparse categorical crossentropy and accuracy metrics
-adam = keras.optimizers.Adam(lr = .001)
+adam = keras.optimizers.Adam(learning_rate=.001)
 model.compile(loss = 'sparse_categorical_crossentropy',
               optimizer = adam,
               metrics = ['accuracy'])
