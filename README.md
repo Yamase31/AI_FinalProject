@@ -11,6 +11,8 @@ Since our data is larger than 25MB, we have attached it here: https://drive.goog
 
 GAN Link: https://www.tensorflow.org/tutorials/generative/dcgan
 
+Link for GAN with MNIST: https://machinelearningmastery.com/how-to-develop-a-generative-adversarial-network-for-an-mnist-handwritten-digits-from-scratch-in-keras/
+
 CNN Model:
 
 Epoch 1/1000 25000/25000 [==============================] - 1887s 75ms/step - loss: 0.6441 - accuracy: 0.7298
