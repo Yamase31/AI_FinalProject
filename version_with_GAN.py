@@ -1,3 +1,4 @@
+
 # Libraries we are currently using
 
 import csv
@@ -167,37 +168,12 @@ def train_step(images, generator, discriminator,noise_dim):
     generator_optimizer.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
     discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
 
-def generate_and_save_images(model, epoch, test_input):
-  # Notice `training` is set to False.
-  # This is so all layers run in inference mode (batchnorm).
-    predictions = model(test_input, training=False)
-
-    fig = plt.figure(figsize=(4, 4))
-
-    for i in range(predictions.shape[0]):
-        plt.subplot(4, 4, i+1)
-        plt.imshow(predictions[i, :, :, 0] * 127.5 + 127.5, cmap='gray')
-        plt.axis('off')
-
-    plt.savefig('image_at_epoch_{:04d}.png'.format(epoch))
-    plt.show()
-
-
 def train(dataset, epochs, generator, discriminator, noise_dim, seed):
     for epoch in range(epochs):
         start = time.time()
 
         for image_batch in dataset:
             train_step(image_batch, generator, discriminator, noise_dim)
-
-        # Produce images for the GIF as you go
-        generate_and_save_images(generator,
-                                 epoch + 1,
-                                 seed)
-
-        # Save the model every 15 epochs
-    ##    if (epoch + 1) % 15 == 0:
-    ##        checkpoint.save(file_prefix = checkpoint_prefix)
 
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
 
@@ -209,7 +185,7 @@ def train(dataset, epochs, generator, discriminator, noise_dim, seed):
 
 def main():
     
-    x_train, x_test, y_train, y_test = get_data('sudoku_sample.csv')
+    x_train, x_test, y_train, y_test = get_data('sudoku.csv')
     BUFFER_SIZE = 800000
     BATCH_SIZE = 800000
     train_dataset = tf.data.Dataset.from_tensor_slices(x_train).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
@@ -218,10 +194,8 @@ def main():
     discriminator = make_discriminator_model()
     noise = tf.random.uniform([9, 9], 0, 9, dtype=tf.dtypes.int64)
     print(noise)
-    generated_image = generator(noise, training=False)
+    generated_image = generator(noise, training = False) #either
     print(generator.summary(), discriminator.summary())
-
-    
 
     EPOCHS = 50
     noise_dim = 9
