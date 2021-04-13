@@ -177,12 +177,6 @@ def train(dataset, epochs, generator, discriminator, noise_dim, seed):
 
         print ('Time for epoch {} is {} sec'.format(epoch + 1, time.time()-start))
 
-    # Generate after the final epoch
-    display.clear_output(wait=True)
-    generate_and_save_images(generator,
-                           epochs,
-                           seed)
-
 def main():
     
     x_train, x_test, y_train, y_test = get_data('sudoku.csv')
