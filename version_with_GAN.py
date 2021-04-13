@@ -32,13 +32,14 @@ def get_data(file):
     feat_raw = []
     label_raw = []
     
-    with open('sudoku_sample.csv') as csvfile:
+    with open('sudoku.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
-        next(reader)
+        for i in range(999900):
+            next(reader)
         for row in reader:
             feat_raw.append(row[0])
             label_raw.append(row[1])
-            
+    print(feat_raw)       
     feat = []
     label = []
     
@@ -190,7 +191,6 @@ def train(dataset, epochs, generator, discriminator, noise_dim, seed):
             train_step(image_batch, generator, discriminator, noise_dim)
 
         # Produce images for the GIF as you go
-        display.clear_output(wait=True)
         generate_and_save_images(generator,
                                  epoch + 1,
                                  seed)
@@ -209,7 +209,7 @@ def train(dataset, epochs, generator, discriminator, noise_dim, seed):
 
 def main():
     
-    x_train, x_test, y_train, y_test = get_data('sudoku.csv')
+    x_train, x_test, y_train, y_test = get_data('sudoku_sample.csv')
     BUFFER_SIZE = 800000
     BATCH_SIZE = 800000
     train_dataset = tf.data.Dataset.from_tensor_slices(x_train).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
