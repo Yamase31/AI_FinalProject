@@ -1,157 +1,200 @@
 #imports
-import copy
+import csv
 import keras
+import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
-from keras.layers import Activation
-from keras.layers import Conv2D, BatchNormalization, Dense, Flatten, Reshape
+import tensorflow as tf
+from tensorflow.keras import layers
+from keras.layers import Conv2D
+import time
 
-#data preprocessing
+# Make sure the optimizer variables are global
+generator_optimizer = tf.keras.optimizers.Adam(1e-4)
+discriminator_optimizer = tf.keras.optimizers.Adam(1e-4)
+
+# Data pre-processing
+
 def get_data(file): 
-
-    data = pd.read_csv(file)
-
-    feat_raw = data['quizzes']
-    label_raw = data['solutions']
-
+    
+    feat_raw = []
+    label_raw = []
+    
+    with open('sudoku.csv') as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        for i in range(999900):
+            next(reader)
+        for row in reader:
+            feat_raw.append(row[0])
+            label_raw.append(row[1])
+    print(feat_raw)       
     feat = []
     label = []
-
+    
     for i in feat_raw:
-    
-        x = np.array([int(j) for j in i]).reshape((9,9,1))
+        x = np.array([int(j) for j in i]).reshape((9,9))
         feat.append(x)
-    
-    feat = np.array(feat)
+        
+    # Normalize the puzzles between -1 and 1
+    feat = np.array(feat)    
     feat = feat/9
-    feat -= .5    
+    feat -= .5
     
     for i in label_raw:
-    
         x = np.array([int(j) for j in i]).reshape((81,1)) - 1
+        
         label.append(x)   
-    
+        
     label = np.array(label)
     
     del(feat_raw)
     del(label_raw)
-
+    
     x_train, x_test, y_train, y_test = train_test_split(feat, label, test_size = 0.2, random_state = 42)
     
     return x_train, x_test, y_train, y_test
 
-#load the data
-x_train, x_test, y_train, y_test = get_data('sudoku.csv')
-
-#create the model
-model = keras.models.Sequential()
-
-model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same', input_shape = (9,9,1)))
-model.add(BatchNormalization())
-model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
-model.add(BatchNormalization())
-model.add(Conv2D(128, kernel_size = (1,1), activation = 'relu', padding = 'same'))
-
-model.add(Flatten())
-model.add(Dense(81*9))
-model.add(Reshape((-1, 9)))
-model.add(Activation('softmax'))
-
-#train the model
-adam = keras.optimizers.Adam(lr = .001)
-model.compile(loss = 'sparse_categorical_crossentropy', optimizer = adam)
-
-model.fit(x_train, y_train, batch_size = 32, epochs = 2)
-
-#solve sudoku by filling blank positions one by one
-def norm(a):
+def make_generator_model():
     
-    return (a/9)-.5
-
-def denorm(a):
+    inps = layers.Input(shape = (9,9))
+    x = layers.Dense(9, activation = 'relu',
+        kernel_initializer = 'he_uniform')(inps)
+    # x = Conv2D(64, kernel_size = (3,3),
+        # activation = 'relu', padding = 'same',
+        # input_shape = (9,9))(inps)
+    outs = layers.Dense(9, activation = 'tanh')(x)
+    model = keras.Model(inps, outs, name = 'generator')
     
-    return (a+.5)*9
-
-def inference_sudoku(sample):
+    # old model
     
-    '''
-        This function solve the sudoku by filling blank positions one by one.
-    '''
+    # model = keras.Sequential()
+    # model.add(layers.Dense(1 * 1 * 256, use_bias = False))#, input_shape = (9, 9, 1)))
+    # model.add(layers.BatchNormalization())
+    # model.add(layers.LeakyReLU())
+    #
+    # model.add(layers.Reshape((1, 1, 256)))
+# #    assert model.output_shape == (None, 1, 1, 256)  # Note: None is the batch size
+#
+    # model.add(layers.Conv2DTranspose(128, (5, 5), strides = (1, 1), padding = 'same', use_bias = False))
+# #   assert model.output_shape == (None, 1, 1, 128)
+    # model.add(layers.BatchNormalization())
+    # model.add(layers.LeakyReLU())
+    #
+    # model.add(layers.Conv2DTranspose(64, (5, 5), strides = (3, 3), padding = 'same', use_bias = False))
+# #    assert model.output_shape == (None, 3, 3, 64)
+    # model.add(layers.BatchNormalization())
+    # model.add(layers.LeakyReLU())
+    #
+    # model.add(layers.Conv2DTranspose(1, (5, 5), strides = (3, 3), padding = 'same', use_bias = False, activation = 'tanh'))
+# #    assert model.output_shape == (None, 9, 9, 1)
     
-    feat = copy.copy(sample)
+    return model
+
+def make_discriminator_model():
     
-    while(1):
+    inps = layers.Input(shape = (9,9))
+    x = layers.Dense(9, activation = 'relu',
+        kernel_initializer = 'he_uniform')(inps)
+    outs = layers.Dense(1)(x)
+    model = keras.Model(inps, outs, name = 'discriminator')
     
-        out = model.predict(feat.reshape((1,9,9,1)))  
-        out = out.squeeze()
-
-        pred = np.argmax(out, axis = 1).reshape((9,9)) + 1
-        prob = np.around(np.max(out, axis = 1).reshape((9,9)), 2) 
-        
-        feat = denorm(feat).reshape((9,9))
-        mask = (feat==0)
-     
-        if(mask.sum()==0):
-            break
-            
-        prob_new = prob * mask
+    # old model
     
-        ind = np.argmax(prob_new)
-        x, y = (ind//9), (ind%9)
+    # model = keras.Sequential()
+    # model.add(layers.Conv2D(64, kernel_size = (3,3), padding = 'same'))#, input_shape = (9,9,1)))
+    #
+    # model.add(layers.LeakyReLU())
+    # model.add(layers.Dropout(0.3))
+    #
+    # model.add(layers.Conv2D(128, kernel_size = (1,1), padding = 'same'))
+    # model.add(layers.LeakyReLU())
+    # model.add(layers.Dropout(0.3))
+    #
+    # model.add(layers.Flatten())
+    # model.add(layers.Dense(1))
 
-        val = pred[x][y]
-        feat[x][y] = val
-        feat = norm(feat)
+    return model
+
+
+def discriminator_loss(real_output, fake_output):
+    #define loss 
+    cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     
-    return pred
+    real_loss = cross_entropy(tf.ones_like(real_output), real_output)
+    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
+    total_loss = real_loss + fake_loss
+    return total_loss
 
-#testing 100 games
-def test_accuracy(feats, labels):
+
+def generator_loss(fake_output):
+    #define loss 
+    cross_entropy = tf.keras.losses.BinaryCrossentropy(from_logits=True)
     
-    correct = 0
+    return cross_entropy(tf.ones_like(fake_output), fake_output)
+
+def train_step(text, generator, discriminator,noise_dim):
+##    noise = tf.random.uniform([9, 9], 0, 9, dtype=tf.dtypes.int64)
+    noise = tf.random.normal([9, noise_dim])
+
+    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
+        generated_text = generator(text, training=True)
+
+        real_output = discriminator(text, training=True)
+        fake_output = discriminator(generated_text, training=True)
+
+        gen_loss = generator_loss(fake_output)
+        disc_loss = discriminator_loss(real_output, fake_output)
+
+    gradients_of_generator = gen_tape.gradient(gen_loss, generator.trainable_variables)
+    gradients_of_discriminator = disc_tape.gradient(disc_loss, discriminator.trainable_variables)
+
+    generator_optimizer.apply_gradients(zip(gradients_of_generator, generator.trainable_variables))
+    discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, discriminator.trainable_variables))
+
+def train(dataset, epochs, generator, discriminator, noise_dim, seed):
+    for epoch in range(epochs):
+
+        for sudoku_puzzle in dataset:
+            train_step(sudoku_puzzle, generator, discriminator, noise_dim)
+
+        print("epoch #: ", epoch + 1)
+
+def main():
     
-    for i,feat in enumerate(feats):
-        
-        pred = inference_sudoku(feat)
-        
-        true = labels[i].reshape((9,9))+1
-        
-        if(abs(true - pred).sum()==0):
-            correct += 1
-        
-    print(correct/feats.shape[0])
+    x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 
-test_accuracy(x_test[:100], y_test[:100])
-
-#test our own game
-def solve_sudoku(game):
+    #we have 80,000 training examples
+    BUFFER_SIZE = 800000
+    BATCH_SIZE = 800000
+    train_dataset = tf.data.Dataset.from_tensor_slices(x_train).shuffle(BUFFER_SIZE).batch(BATCH_SIZE)
     
-    game = game.replace('\n', '')
-    game = game.replace(' ', '')
-    game = np.array([int(j) for j in game]).reshape((9,9,1))
-    game = norm(game)
-    game = inference_sudoku(game)
-    return game
+    generator = make_generator_model()
+    discriminator = make_discriminator_model()
 
-game = '''
-          0 8 0 0 3 2 0 0 1
-          7 0 3 0 8 0 0 0 2
-          5 0 0 0 0 7 0 3 0
-          0 5 0 0 0 1 9 7 0
-          6 0 0 7 0 9 0 0 8
-          0 4 7 2 0 0 0 5 0
-          0 2 0 6 0 0 0 0 9
-          8 0 0 0 9 0 3 0 5
-          3 0 0 8 2 0 0 1 0
-      '''
+    EPOCHS = 50
+    noise_dim = 9
+    num_examples_to_generate = 16
 
-game = solve_sudoku(game)
+    seed = tf.random.normal([num_examples_to_generate, noise_dim])
+    train(train_dataset, EPOCHS, generator, discriminator, noise_dim, seed)
 
-print('solved puzzle:\n')
-print(game)
+    noise = tf.random.uniform([9, 9], 0, 9, dtype=tf.dtypes.int64)
+    print("noise: ", noise)
+    generated_puzzle = generator(noise, training = True)
 
-np.sum(game, axis = 1)
+    print("old generated puzzle: ", generated_puzzle)
+    
+    #need to un-normalize the puzzles between -1 and 1
+    generated_puzzle = generated_puzzle * 9
+    generated_puzzle += .5
+
+    print("new generated puzzle: ", generated_puzzle)
+
+    #print(generator.summary(), discriminator.summary())
+
+if __name__ == '__main__':
+    main()
+
 
 
 
