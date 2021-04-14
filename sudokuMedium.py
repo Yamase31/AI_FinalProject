@@ -22,6 +22,9 @@ import matplotlib.pyplot as plt
 from celluloid import Camera
 
 
+from functools import reduce
+
+
 #bump the size up later
 
 
@@ -296,17 +299,6 @@ print("\n")
 print("\n")
 print("\n")
 
-"""
-#to print all 100 new sudoku puzzles
-count = 0
-for i in range(len(generated_points_list)):
-    for j in range(len(generated_points_list[i])):
-        print(generated_points_list[i][j], end=' ')
-        count += 1
-    print()
-print(count)
-"""
-
 print("generated puzzle: ", generated_points_list[0][0])
 
 print("generated puzzle shape: ", generated_points_list[0].shape)
@@ -326,7 +318,43 @@ print("new puzzle: ", un_normalized_generated_puzzle)
 
 print("new puzzle shape: ", un_normalized_generated_puzzle.shape) #should be (9,9)
 
+
+#difficulty setting (default is 7, deletes all values lower than 7) ----------------------------
+#this is a very hard difficulty setting
+difficulty_setting = 7
+
+un_normalized_generated_puzzle[un_normalized_generated_puzzle<7] = 0
+
+print(un_normalized_generated_puzzle)
+
+
+
+
+
 #error correction mechanism for the new outputted puzzles:
+
+
+
+#if there are unique values, remove them
+##values_to_keep = np.unique(un_normalized_generated_puzzle[0])
+
+##print("unique: ", values_to_keep)
+
+
+
+
+
+##print(new_board)
+
+#first row
+##print(un_normalized_generated_puzzle[0])
+
+#first column
+##print(un_normalized_generated_puzzle[:,0])
+
+
+
+
 
 
 
@@ -348,3 +376,4 @@ plt.close()
 # anim.save('animation.gif', fps=2)
 anim.save('animation.mp4', fps=10)
 """
+
