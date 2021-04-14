@@ -20,12 +20,12 @@ from tensorflow.keras import layers
 import numpy as np
 import matplotlib.pyplot as plt
 from celluloid import Camera
-
-
 from functools import reduce
 
 
-#bump the size up later
+
+#put comments in
+
 
 
 # Data pre-processing
@@ -36,8 +36,7 @@ def get_data(file):
     
     with open('sudoku.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
-        for i in range(999900):
-            next(reader)
+        next(reader)
         for row in reader:
             feat_raw.append(row[0])
             label_raw.append(row[1])
@@ -68,101 +67,22 @@ def get_data(file):
     
     return x_train, x_test, y_train, y_test
 
-
-"""
 x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 
-sudoku_board_1 = y_train[0]
-
-y_train_reshaped = sudoku_board_1.reshape([1,81])
-
-#print("reshaped sudoku board: ", y_train_reshaped)
-
-#print("reshaped sudoku board shape: ", y_train_reshaped.shape)
-
-mapped = y_train_reshaped
-
-mapped = mapped / 9
-
-print("mapped: ", mapped)
-
-print(mapped.shape)
-
-
-
-def get_real_data(n):
-    
-##    # generate random numbers between range
-##    x1 = np.random.uniform(low = 0, high = 1, size=n)
-##    # x2 = np.cos(x1)  # use this for inverted u-shape function
-##    x1 = x1.reshape((n, 1))
-##    x2 = x1 * x1  # use this for u-shape function
-##    x2 = x2.reshape((n, 1))
-##    x3 = x2 * x2  # use this for u-shape function
-##    x3 = x3.reshape((n, 1))
-
-    samples = np.vstack((x1, x2, x3))
-    
-##    samples = np.array([[0.77777778, 0.22222222, 0.88888889, 0.11111111, 0.66666667, 0.33333333,
-## 0.55555556, 0.44444444, 0.,         0.33333333, 0.66666667, 0.44444444,
-## 0.,         0.55555556, 0.88888889, 0.11111111, 0.77777778, 0.22222222,
-## 0.55555556, 0.,         0.11111111, 0.44444444, 0.22222222, 0.77777778,
-## 0.66666667, 0.88888889, 0.33333333, 0.        , 0.44444444, 0.66666667,
-## 0.33333333, 0.77777778, 0.22222222, 0.88888889, 0.11111111, 0.55555556,
-## 0.22222222, 0.88888889, 0.33333333, 0.55555556, 0.11111111, 0.44444444,
-## 0.        , 0.66666667, 0.77777778, 0.11111111, 0.55555556, 0.77777778,
-## 0.88888889, 0.        , 0.66666667, 0.22222222, 0.33333333, 0.44444444,
-## 0.44444444, 0.77777778, 0.        , 0.22222222, 0.88888889, 0.11111111,
-## 0.33333333, 0.55555556, 0.66666667, 0.66666667, 0.11111111, 0.55555556,
-## 0.77777778, 0.33333333, 0.        , 0.44444444, 0.22222222, 0.88888889,
-## 0.88888889, 0.33333333, 0.22222222, 0.66666667, 0.44444444, 0.55555556,
-## 0.77777778, 0.,         0.11111111,]])
-    return samples
-
-# get 100 data points
-data = get_real_data(2)
-
-print("data: ", data)
-print(data.shape)
-"""
-
-#try and get 80 examples
-#could also get a crazy long string and reshape
-
-x_train, x_test, y_train, y_test = get_data('sudoku.csv')
+print("training shape: ", y_train.shape)
 
 def get_real_data(y_train):
-    sudoku_board_0 = y_train[0:20] #here we specify how many boards we want to import
-    sudoku_board_reshaped_0 = sudoku_board_0.reshape([20,81]) #the number on the left needs to be the number of boards
-    mapped_sudoku_board_0 = sudoku_board_reshaped_0
-    mapped_sudoku_board_0 = mapped_sudoku_board_0 / 9
-
-##    sudoku_board_1 = y_train[1]
-##    sudoku_board_reshaped_1 = sudoku_board_1.reshape([1,81])
-##    mapped_sudoku_board_1 = sudoku_board_reshaped_1
-##    mapped_sudoku_board_1 = mapped_sudoku_board_1 / 9
-##
-##    sudoku_board_2 = y_train[2]
-##    sudoku_board_reshaped_2 = sudoku_board_2.reshape([1,81])
-##    mapped_sudoku_board_2 = sudoku_board_reshaped_2
-##    mapped_sudoku_board_2 = mapped_sudoku_board_2 / 9
-
-    #print("mapped: ", mapped_sudoku_board)
-    #print("mapped shape: ", mapped_sudoku_board.shape)
-
-    #data1 = np.vstack((mapped_sudoku_board_0, mapped_sudoku_board_1, mapped_sudoku_board_2))
-
-    data1 = mapped_sudoku_board_0
+    sudoku_boards = y_train[0:799999] #here we specify how many boards we want to import 800000
+    sudoku_boards = sudoku_boards.reshape([799999,81]) #the number on the left needs to be the number of boards
+    sudoku_boards = sudoku_boards / 9
        
-    return data1
+    return sudoku_boards
 
-# get 100 data points
+#get our data points
 data = get_real_data(y_train)
 
 print("data", data)
 print("data shape", data.shape)
-
-
 
 
 
@@ -205,7 +125,7 @@ def build_generator(latent_dim=5):
   return model
 discriminator = build_discriminator()
 generator = build_generator()
-#print(discriminator.summary(), generator.summary())
+print(discriminator.summary(), generator.summary())
 
 class GAN(keras.Model):
     
@@ -277,12 +197,13 @@ generated_points_list = []
 # a lambda callback
 cbk = keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch,logs: show_samples(epoch, gan.generator, data))
 
-hist = gan.fit(train_data, epochs=5, callbacks=[cbk], verbose=False)
+#epochs was originally set to 5,000
+hist = gan.fit(train_data, epochs=5000, callbacks=[cbk], verbose=True)
 '''
 this will almost take 40-50 seconds but you can turn on the verbose and see progress along the way
 '''
 
-"""
+
 # plot the results
 plt.plot(hist.history['d_loss'], color='blue', label='discriminator loss')
 plt.plot(hist.history['g_loss'], color='red', label='generator loss')
@@ -290,10 +211,10 @@ plt.xlabel('Epochs')
 plt.ylabel('Losses')
 plt.legend()
 plt.show()
-"""
 
 
-"""
+
+
 print("first data point: ", data[0])
 
 print("first data point shape: ", data[0].shape)
@@ -330,7 +251,7 @@ difficulty_setting = 7
 un_normalized_generated_puzzle[un_normalized_generated_puzzle<7] = 0
 
 print(un_normalized_generated_puzzle)
-"""
+
 
 
 
@@ -364,7 +285,7 @@ print(un_normalized_generated_puzzle)
 
 
 
-"""
+
 # get real data to show with fake data
 real_x, real_y  = data[:, 0], data[:, 1]
 camera = Camera(plt.figure())
@@ -377,6 +298,6 @@ for i in range(len(generated_points_list)):
   camera.snap()
 anim = camera.animate(blit=True)
 plt.close()
-# anim.save('animation.gif', fps=2)
-anim.save('animation.mp4', fps=10)
-"""
+anim.save('animation.gif', fps=2)
+#anim.save('animation.mp4', fps=10)
+
