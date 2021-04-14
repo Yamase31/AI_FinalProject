@@ -126,34 +126,38 @@ print("data: ", data)
 print(data.shape)
 """
 
+#try and get 80 examples
+#could also get a crazy long string and reshape
 
 x_train, x_test, y_train, y_test = get_data('sudoku.csv')
 
-def get_real_data(n, y_train):
-    sudoku_board_0 = y_train[0]
-    sudoku_board_reshaped_0 = sudoku_board_0.reshape([1,81])
+def get_real_data(y_train):
+    sudoku_board_0 = y_train[0:20] #here we specify how many boards we want to import
+    sudoku_board_reshaped_0 = sudoku_board_0.reshape([20,81]) #the number on the left needs to be the number of boards
     mapped_sudoku_board_0 = sudoku_board_reshaped_0
     mapped_sudoku_board_0 = mapped_sudoku_board_0 / 9
 
-    sudoku_board_1 = y_train[1]
-    sudoku_board_reshaped_1 = sudoku_board_1.reshape([1,81])
-    mapped_sudoku_board_1 = sudoku_board_reshaped_1
-    mapped_sudoku_board_1 = mapped_sudoku_board_1 / 9
-
-    sudoku_board_2 = y_train[2]
-    sudoku_board_reshaped_2 = sudoku_board_2.reshape([1,81])
-    mapped_sudoku_board_2 = sudoku_board_reshaped_2
-    mapped_sudoku_board_2 = mapped_sudoku_board_2 / 9
+##    sudoku_board_1 = y_train[1]
+##    sudoku_board_reshaped_1 = sudoku_board_1.reshape([1,81])
+##    mapped_sudoku_board_1 = sudoku_board_reshaped_1
+##    mapped_sudoku_board_1 = mapped_sudoku_board_1 / 9
+##
+##    sudoku_board_2 = y_train[2]
+##    sudoku_board_reshaped_2 = sudoku_board_2.reshape([1,81])
+##    mapped_sudoku_board_2 = sudoku_board_reshaped_2
+##    mapped_sudoku_board_2 = mapped_sudoku_board_2 / 9
 
     #print("mapped: ", mapped_sudoku_board)
     #print("mapped shape: ", mapped_sudoku_board.shape)
 
-    data1 = np.vstack((mapped_sudoku_board_0, mapped_sudoku_board_1, mapped_sudoku_board_2))
-        
+    #data1 = np.vstack((mapped_sudoku_board_0, mapped_sudoku_board_1, mapped_sudoku_board_2))
+
+    data1 = mapped_sudoku_board_0
+       
     return data1
 
 # get 100 data points
-data = get_real_data(3, y_train)
+data = get_real_data(y_train)
 
 print("data", data)
 print("data shape", data.shape)
@@ -273,7 +277,7 @@ generated_points_list = []
 # a lambda callback
 cbk = keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch,logs: show_samples(epoch, gan.generator, data))
 
-hist = gan.fit(train_data, epochs=5, callbacks=[cbk], verbose=True)
+hist = gan.fit(train_data, epochs=5, callbacks=[cbk], verbose=False)
 '''
 this will almost take 40-50 seconds but you can turn on the verbose and see progress along the way
 '''
@@ -289,7 +293,7 @@ plt.show()
 """
 
 
-
+"""
 print("first data point: ", data[0])
 
 print("first data point shape: ", data[0].shape)
@@ -326,7 +330,7 @@ difficulty_setting = 7
 un_normalized_generated_puzzle[un_normalized_generated_puzzle<7] = 0
 
 print(un_normalized_generated_puzzle)
-
+"""
 
 
 
@@ -376,4 +380,3 @@ plt.close()
 # anim.save('animation.gif', fps=2)
 anim.save('animation.mp4', fps=10)
 """
-
