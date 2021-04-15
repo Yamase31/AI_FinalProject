@@ -15,14 +15,22 @@ Link for GAN with MNIST: https://machinelearningmastery.com/how-to-develop-a-gen
 
 Link for GAN that we based our project off of: https://medium.com/analytics-vidhya/demystifying-the-gan-using-a-1d-function-keras-bc7b861bb304
 
-Final Results:
+Final Results (new generated puzzle):
 
-new puzzle:  [[8. 2. 8. 2. 6. 7. 8. 5. 8.]
-             [7. 8. 7. 4. 0. 1. 3. 5. 3.]
-             [6. 5. 2. 5. 2. 1. 7. 5. 5.]
-             [6. 6. 7. 8. 8. 5. 7. 8. 3.]
-             [5. 1. 3. 1. 7. 4. 9. 5. 6.]
-             [6. 5. 2. 2. 7. 8. 7. 7. 8.]
-             [8. 6. 3. 7. 4. 8. 6. 7. 8.]
-             [6. 0. 1. 1. 6. 5. 8. 5. 2.]
-             [7. 7. 7. 3. 7. 6. 4. 7. 5.]]
+[[8. 2. 8. 2. 6. 7. 8. 5. 8.]
+             
+[7. 8. 7. 4. 0. 1. 3. 5. 3.]             
+
+[6. 5. 2. 5. 2. 1. 7. 5. 5.]
+             
+[6. 6. 7. 8. 8. 5. 7. 8. 3.]
+             
+[5. 1. 3. 1. 7. 4. 9. 5. 6.]
+             
+[6. 5. 2. 2. 7. 8. 7. 7. 8.]
+             
+[8. 6. 3. 7. 4. 8. 6. 7. 8.]
+             
+[6. 0. 1. 1. 6. 5. 8. 5. 2.]
+             
+[7. 7. 7. 3. 7. 6. 4. 7. 5.]]
